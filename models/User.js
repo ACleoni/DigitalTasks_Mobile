@@ -13,6 +13,19 @@ const User = sequelize.define('user', {
     password: {
         type: Sequelize.STRING, allowNull: false
     }
+}, { 
+    hooks: {
+        beforeCreate: (User, options) => {
+            User.password = _hashPassword(user.password);
+        }
+    }
 });
+
+const _hashPassword = async () => {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+}
+
+
 
 module.exports = User;
