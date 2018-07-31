@@ -1,15 +1,12 @@
-const chai = require('chai');
-const expect = chai.expect;
-const sequelize = require('sequelize');
-const sinon = require('sinon');
-const sandbox = sinon.createSandbox();
-const ENV = process.env.NODE_ENV || 'development';
-process.env.NODE_ENV = "test";
-const { models } = require('../../models').sequelize;
-
-
 describe('User Model', function() {
     let sampleUser;
+    let models;
+
+    /* Create test database if necessary */
+    beforeAll(async function() {
+        await require('../util/setup')();
+        models = require('../../models').sequelize.models;
+    });
 
     beforeEach(function() {
         sampleUser = {
@@ -19,47 +16,48 @@ describe('User Model', function() {
         }
     });
 
-    describe('User.create()', function() {
-        it('should successfully create a new user', async function() {
+    describe('User.create()', () => {
+        it('should successfully create a new user', async () => {
             const user = await models.user.create({ email: sampleUser.email, password: sampleUser.password });
-            expect(user.dataValues.email).to.equal(sampleUser.email);
+            expect(user.dataValues.email).toBe(sampleUser.email);
         });
 
-        it('should hash password before creating user record', async function() {
+        it('should hash password before creating user record', async () => {
             const user = await models.user.create({ email: sampleUser.email, password: sampleUser.password })
                                           .catch((e) => new Error(e));
 
-            expect(user.dataValues.password.slice(0, 6)).to.equal('$2a$10');
+            expect(user.dataValues.password.slice(0, 6)).toBe('$2a$10');
         });
 
-        it('should throw an exception if password is less than 7 characters in length', async function() {
-            const user = await models.user.create({ email: sampleUser.email, password: "1" })
-                                          .then(() => expect.fail('Created user', 'Expected exception'))
-                                          .catch((e) => expect(e.toString()).to.equal("SequelizeValidationError: Validation error: Password must be atleast 7 characters"));
+        it('should throw an exception if password is less than 5 characters in length', () => {
+            return  models.user.create({ email: sampleUser.email, password: "1" })
+                               .then(() => expect.fail('Created user', 'Expected exception'))
+                               .catch((e) => expect(e.toString()).toBe("SequelizeValidationError: Validation error: Password must be atleast 5 characters"));
 
         });
 
-        it('should throw an exception if invalid email format', function() {
+        it('should throw an exception if invalid email format', () => {
             return models.user.create({ email: "invalid email", password: sampleUser.password })
                               .then(() => expect.fail('Created user', 'Expected exception'))
-                              .catch(e => expect(e.errors[0].message).to.equal("Please enter a valid email address"));
+                              .catch(e => expect(e.errors[0].message).toBe("Please enter a valid email address"));
         });
 
-        it('should throw password cannot be blank exception', function() {
+        it('should throw password cannot be blank exception', () => {
             return models.user.create({ email: sampleUser.email })
                               .then(() => expect.fail('Created user', 'Expected exception'))
-                              .catch(e => expect(e.toString()).to.equal("SequelizeValidationError: notNull Violation: user.password cannot be null"));
+                              .catch(e => expect(e.toString()).toBe("SequelizeValidationError: notNull Violation: user.password cannot be null"));
         });
 
-        it('should throw email cannot be blank exception', function() {
+        it('should throw email cannot be blank exception', () => {
             return models.user.create({ password: sampleUser.password })
                               .then(() => expect.fail('Created user', 'Expected exception'))
                               .catch(e => {
-                                  expect(e.toString()).to.equal("SequelizeValidationError: notNull Violation: user.email cannot be null");
+                                  expect(e.toString()).toBe("SequelizeValidationError: notNull Violation: user.email cannot be null");
                                 });
         });
     });
 
+    /* Clear all rows in database */
     afterEach(async function() {
         return models.user.destroy({
             where: { }

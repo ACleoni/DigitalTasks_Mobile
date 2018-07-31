@@ -1,28 +1,24 @@
-const User = require('../models/tables/user');
+const { user } = require('../models').sequelize.models;
 const bcrypt = require('bcryptjs');
-const LOGGER = require('../config/logger');
+const LOGGER = require('winston');
+
 
 class UserService {
 
     getUserByEmail(email) {
-        const user = User.findOne({ where: { email } });
+        const user = user.findOne({ where: { email } });
         return user.dataValues;
     }
 
     async createUser(email, password) {
 
-        if (password.length < 5) {
-            throw Error("Password must be 5 characters or greater.");
-        } 
+        if (password.length < 5) throw new ValidationError("Password must be atleast 5 characters.");
+        if (email.length === 0) throw new ValidationError("Email cannot be blank.")
 
-        try {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-            return User.create(email, hashedPassword).then((user) => user.dataValues);
-        } catch (e) {
-            LOGGER.error(`The following error occurred while password hashing:\n ${e}`);
-            throw Error("An unexpected error occurred.");
-        }
+        const userRecord = await user.create({ email, password })
+                                     .then(result => result.dataValues);
+                          
+        return { id: userRecord.id, email: userRecord.email }
     }
 
 }
