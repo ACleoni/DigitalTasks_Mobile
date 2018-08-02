@@ -1,14 +1,14 @@
-describe('User Model', function() {
+describe('User Model', () => {
     let sampleUser;
     let models;
 
     /* Create test database if necessary */
-    beforeAll(async function() {
+    beforeAll(async () => {
         await require('../util/setup')();
         models = require('../../models').sequelize.models;
     });
 
-    beforeEach(function() {
+    beforeEach(() => {
         sampleUser = {
             id: 123,
             email: "test@test.com",

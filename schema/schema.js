@@ -41,7 +41,9 @@ const Mutation = new GraphQLObjectType({
         createUser: {
             type: UserType,
             args: { email: { type: GraphQLString }, password: { type: GraphQLString } },
-            resolve: (obj, { email, password }) => UserService.createUser(email, password)
+            resolve: (obj, { email, password }, context) => {
+                return UserService.createUser(email, password, context.res, context.next)
+            }
         }
     }
 });
