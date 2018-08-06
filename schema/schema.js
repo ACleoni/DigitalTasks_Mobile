@@ -1,51 +1,22 @@
-const UserService = require('../service/UserService');
-
 const {
-    graphql,
     GraphQLSchema,
-    GraphQLObjectType,
-    GraphQLString,
-    GraphQLList,
-    GraphQLNonNull,
-    GraphQLInt
+    GraphQLObjectType
 } = require('graphql');
-
-const UserType = new GraphQLObjectType({
-    name: 'User',
-    fields: () => ({
-        id: {
-            type: GraphQLInt,
-            resolve: (obj) => obj.id
-        },
-        email: {
-            type: new GraphQLNonNull(GraphQLString),
-            resolve: (obj) => obj.email
-        }
-    })
-});
+const queries = require('./queries');
+const mutations = require('./mutations'); 
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
-    fields: {
-        user: {
-            type: UserType,
-            args: { email: { type: GraphQLString } },
-            resolve: (obj, { email }) => UserService.getUserByEmail(email)
-        }
-    }
+    fields: () => ({
+        queries
+    })
 });
 
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
-    fields: {
-        createUser: {
-            type: UserType,
-            args: { email: { type: GraphQLString }, password: { type: GraphQLString } },
-            resolve: (obj, { email, password }, context) => {
-                return UserService.createUser(email, password, context.res, context.next)
-            }
-        }
-    }
+    fields: () => ({
+        mutations
+    })
 });
 
 module.exports = new GraphQLSchema({

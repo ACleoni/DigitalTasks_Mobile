@@ -12,18 +12,18 @@ class UserService {
         return user.dataValues;
     }
 
-    async createUser(email, password, token) {
+    async createUser(email, password) {
 
-        const isValid = _validateRequest(email, password);
+        const isValid = await _validateRequest(email, password);
+
+        if (isValid instanceof Error) throw isValid;
 
         const userRecord = await user.create({ email, password })
                                      .then(result => result.dataValues);
 
         const token = await _generateUserToken(userRecord.id, email);
-        
-        res.cookie("token", token);
-        
-        return { id: userRecord.id, email: userRecord.email }
+
+        return { id: userRecord.id, email: userRecord.email, token }
     }
 }
 
@@ -41,12 +41,10 @@ const _generateUserToken = (id, email) => {
 
 const _validateRequest = (email, password) => {
     return new Promise((resolve, reject) => {
-        if (password.length < 5) reject(Error("Password must be atleast 5 characters.")));
-        if (email.length === 0) reject(Error("Email cannot be blank.")));
+        if (password.length < 5) reject(Error("Password must be atleast 5 characters."));
+        if (email.length === 0) reject(Error("Email cannot be blank."));
         resolve();
-    })
-
-
+    });
 }
 
 module.exports = (new UserService());
