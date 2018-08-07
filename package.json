@@ -3,10 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "start dev": "nodemon ./bin/www",
+    "start": "nodemon ./bin/www",
     "pretest": "export NODE_ENV=test",
-    "test": "jest ./test/**",
+    "test": "jest ./test/api/**",
     "posttest": "export NODE_ENV=developer"
   },
   "dependencies": {

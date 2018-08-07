@@ -4,12 +4,16 @@ const { secretKey } = require('../config/secretKey.json');
 const bcrypt = require('bcryptjs');
 const LOGGER = require('winston');
 
-
 class UserService {
 
-    getUserByEmail(email) {
-        const user = user.findOne({ where: { email } });
-        return user.dataValues;
+    async getUserByEmail(email) {
+        try {
+            const { dataValues } = await user.findOne({ where: { email } });
+            return dataValues;
+        } catch (e) {
+            LOGGER.error('An error occurred while calling getUserByEmail: ', e);
+            throw Error(e);
+        }
     }
 
     async createUser(email, password) {
