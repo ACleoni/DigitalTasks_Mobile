@@ -16,6 +16,4 @@ fs
     queries[file.slice(0, -3)] = query;
   });
 
-  console.log(queries);
-
 module.exports = queries;

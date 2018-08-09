@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon ./bin/www",
     "pretest": "export NODE_ENV=test",
-    "test": "jest ./test/api/**",
+    "test": "jest ./test/**",
     "posttest": "export NODE_ENV=developer"
   },
   "dependencies": {

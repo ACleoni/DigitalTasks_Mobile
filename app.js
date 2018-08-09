@@ -20,7 +20,10 @@ app.use(isAuthorized);
 
 app.use('/graphql', graphqlHTTP({
   schema: GraphQLSchema,
-  graphiql: true
+  graphiql: true,
+  formatError: error => ({
+    message: error.message
+  })
 }));
 
 // catch 404 and forward to error handler

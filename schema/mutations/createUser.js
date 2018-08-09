@@ -4,18 +4,16 @@ const {
     GraphQLString
 } = require('graphql');
 
-module.exports = (() => {
-    return {
-        type: UserType,
-        args: { email: { type: GraphQLString }, password: { type: GraphQLString } },
-        resolve: async(obj, { email, password }, context) => {
-            try {
-                const userInfo = await UserService.createUser(email, password);
-                context.res.cookie("token", userInfo.token);
-            } catch (e) {
-                context.res.status(400).end(e);
-            }
+module.exports = {
+    type: UserType,
+    args: { email: { type: GraphQLString }, password: { type: GraphQLString } },
+    resolve: async(obj, { email, password }, { res }) => {
+        try {
+            const userInfo = await UserService.createUser(email, password);
+            res.cookie("token", userInfo.token);
             return { email: userInfo.email, id: userInfo.id };
+        } catch (e) {
+            throw e;
         }
     }
-})();
+}

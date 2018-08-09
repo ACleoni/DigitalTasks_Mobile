@@ -4,8 +4,7 @@ const {
     GraphQLString
 } = require('graphql');
 
-module.exports = (() => {
-    return {
+module.exports = {
         type: UserType,
         args: { email: { type: GraphQLString } },
         resolve: async(obj, { email }, { res, next }) => {
@@ -15,4 +14,3 @@ module.exports = (() => {
             }
         }
     }
-})();
