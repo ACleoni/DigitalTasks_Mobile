@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www",
+    "start": "node ./bin/www",
     "pretest": "export NODE_ENV=test",
     "test": "jest ./test/**",
     "posttest": "export NODE_ENV=developer"
