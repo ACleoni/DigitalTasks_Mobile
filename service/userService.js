@@ -34,7 +34,6 @@ class UserService {
 const _generateUserToken = (id, email) => {
     return new Promise((resolve, reject) => {
         jwt.sign({ data: { id, email } }, secretKey, { expiresIn: 60 * 60 }, (err, token) => {
-            err = "a"
             if (err) {
                 LOGGER.error(`An error occurred while signing a JWT: ${err}`);
                 reject('An unexpected error occurred.');
