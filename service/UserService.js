@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { user } = require('../models').sequelize.models;
-const { secretKey } = require('../config/secretKey.json');
+const { secretKey } = process.env.CLIENTSECRET || require('../config/secretKey.json');
 const bcrypt = require('bcryptjs');
 const formatError = require('../utils/formatError');
 const LOGGER = require('winston');
