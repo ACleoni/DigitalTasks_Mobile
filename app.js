@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 /* Auth */
-app.use(isAuthorized);
+// app.use(isAuthorized);
 
 app.use('/graphql', graphqlHTTP({
   schema: GraphQLSchema,
