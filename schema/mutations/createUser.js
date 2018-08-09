@@ -3,6 +3,7 @@ const { UserType } = require('../types');
 const {
     GraphQLString
 } = require('graphql');
+const LOGGER = require('winston');
 
 module.exports = {
     type: UserType,
@@ -13,6 +14,7 @@ module.exports = {
             res.cookie("token", userInfo.token);
             return { email: userInfo.email, id: userInfo.id };
         } catch (e) {
+            LOGGER.error("Error occurred in createUser resolver", e);
             throw e;
         }
     }

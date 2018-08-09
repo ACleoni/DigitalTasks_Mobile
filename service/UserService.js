@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { user } = require('../models').sequelize.models;
-const { secretKey } = process.env.CLIENTSECRET || require('../config/secretKey.json');
+const secretKey = process.env.CLIENTSECRET || require('../config/secretKey.json').secretKey;
 const bcrypt = require('bcryptjs');
 const formatError = require('../utils/formatError');
 const LOGGER = require('winston');
@@ -45,8 +45,8 @@ const _generateUserToken = (id, email) => {
 
 const _validateRequest = (email, password) => {
     return new Promise((resolve, reject) => {
-        if (password.length < 5) reject("Password must be atleast 5 characters.");
-        if (email.length === 0) reject("Email cannot be blank.");
+        if (!password || password.length < 5) reject("Password must be atleast 5 characters.");
+        if (!email) reject("Email cannot be blank.");
         resolve();
     });
 }
