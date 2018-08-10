@@ -4,10 +4,9 @@ const LOGGER = require('winston');
 
 module.exports = isAuthorized = (req, res, next) => {
 
-    if (req.cookies.token) return next();
+    if (!req.cookies || !req.cookies.token) return next();
     
     jwt.verify(req.cookies.token, secretKey, (err, { data }) => {
-
         if (err) {
             LOGGER.error(`An error occurred during the JWT verification process:\n ${err}`);
             return next(new Error("Invalid authorization."));

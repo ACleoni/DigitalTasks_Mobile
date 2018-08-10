@@ -12,7 +12,7 @@ describe('UserService', () => {
     });
 
     describe('createUser()', () => {
-        it('should call user.create() without an exception', async () => {
+        it('should return user id and email without an exception', async () => {
             user.create = jest.fn().mockResolvedValue(queryResult);
             const result = await UserService.createUser("test@test.com", "12345678");
             expect(user.create).toBeCalled();
@@ -28,4 +28,14 @@ describe('UserService', () => {
             expect(UserService.createUser("", "1234567", res)).rejects.toThrowError(/Email cannot be blank./);
         });
     });
+
+    describe('getUserById()', () => {
+        it('should return user record without an exception', async () => {
+            user.findOne = jest.fn().mockResolvedValue(queryResult);
+            const result = await UserService.getUserById(1);
+            expect(user.findOne).toBeCalled();
+            expect(result.email).toEqual(queryResult.dataValues.email);
+            expect(result.id).toEqual(queryResult.dataValues.id);
+        })
+    })
 });

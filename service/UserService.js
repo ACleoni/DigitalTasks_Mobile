@@ -7,9 +7,9 @@ const LOGGER = require('winston');
 
 class UserService {
 
-    async getUserByEmail(email) {
+    async getUserById(id) {
         try {
-            const { dataValues } = await user.findOne({ where: { email } });
+            const { dataValues } = await user.findOne({ where: { id } });
             return dataValues;
         } catch (e) {
             LOGGER.error(`An error occurred while calling getUserByEmail: ${e}`);
@@ -28,6 +28,12 @@ class UserService {
             LOGGER.error(`An error occured while creating a user record: ${e}`)
             throw e;
         }
+    }
+
+    async deleteUser(email) {
+        // try {
+            
+        // }
     }
 }
 
