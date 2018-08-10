@@ -1,14 +1,12 @@
 const { user } = require('../../models').sequelize.models;
 const UserService = require('../../service/UserService');
+const sequelize = require('sequelize');
 
 describe('UserService', () => {
     let queryResult;
-    let res;
 
     beforeEach(() => {
         queryResult = { dataValues: { id: 1, email: "test@test.com" } };
-        res = { };
-        res.cookie = jest.fn();
     });
 
     describe('createUser()', () => {
@@ -21,11 +19,11 @@ describe('UserService', () => {
         });
 
         it('should throw an exception if password is less than 5 characters', () => {
-            expect(UserService.createUser("test@test.com", "123")).rejects.toThrowError(/Password must be atleast \d* characters./);
+            expect(UserService.createUser("test@test.com", "123")).rejects.toBe("Password must be atleast 5 characters.");
         });
 
         it('should throw an exception if email is blank.', () => {
-            expect(UserService.createUser("", "1234567", res)).rejects.toThrowError(/Email cannot be blank./);
+            expect(UserService.createUser("", "1234567")).rejects.toBe("Email cannot be blank.");
         });
     });
 
@@ -36,6 +34,16 @@ describe('UserService', () => {
             expect(user.findOne).toBeCalled();
             expect(result.email).toEqual(queryResult.dataValues.email);
             expect(result.id).toEqual(queryResult.dataValues.id);
+        });
+
+        it('should throw a user does not exist exception', async () => {
+            user.findOne = jest.fn().mockResolvedValue(null);
+            try {
+                await UserService.getUserById("INVALID ID");
+                fail("Exception not thrown.");
+            } catch (e) {
+                expect(e).toBeDefined();
+            }
         })
     })
 });

@@ -3,17 +3,20 @@ const { user } = require('../models').sequelize.models;
 const secretKey = process.env.CLIENTSECRET || require('../config/secretKey.json').secretKey;
 const bcrypt = require('bcryptjs');
 const formatError = require('../utils/formatError');
-const LOGGER = require('winston');
+const LOGGER = require('../utils/logger');
 
 class UserService {
 
     async getUserById(id) {
         try {
-            const { dataValues } = await user.findOne({ where: { id } });
-            return dataValues;
+            const userRecord = await user.findOne({ where: { id } });
+            if (userRecord === null) {
+                throw Error("User does not exist.");
+            }
+            return userRecord.dataValues;
         } catch (e) {
             LOGGER.error(`An error occurred while calling getUserByEmail: ${e}`);
-            throw Error(e);
+            throw e;
         }
     }
 
