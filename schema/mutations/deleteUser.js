@@ -3,7 +3,7 @@ const { UserType } = require('../types');
 const {
     GraphQLString
 } = require('graphql');
-const LOGGER = require('winston');
+const LOGGER = require('../../utils/logger');
 
 module.exports = {
     type: UserType,
