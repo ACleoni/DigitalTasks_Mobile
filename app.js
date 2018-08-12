@@ -18,9 +18,9 @@ app.use(cookieParser());
 /* Auth */
 app.use(isAuthorized);
 console.log("here")
-app.use('/graphql', graphqlHTTP(req => ({
+app.use('/graphql', graphqlHTTP((req, res) => ({
   schema: GraphQLSchema,
-  context: { user: req.user },
+  context: { user: req.user, res },
   graphiql: true,
   formatError: error => ({
     message: error.message
