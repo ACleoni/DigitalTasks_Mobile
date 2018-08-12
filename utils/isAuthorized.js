@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { secretKey } = process.env.CLIENTSECRET || require('../config/secretKey');
+const secretKey = process.env.CLIENTSECRET || require('../config/secretKey');
 const LOGGER = require('winston');
 
 module.exports = isAuthorized = (req, res, next) => {
