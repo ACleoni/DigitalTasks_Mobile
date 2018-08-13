@@ -60,7 +60,7 @@ describe('UserService', () => {
 
     describe('getUserByEmail', () => {
         it('should return user if valid email address', async() => {
-            user.findOne = jest.fn().mockResolvedValue(queryResult);
+            user.findOne = jest.fn().mockResolvedValue(queryResult.dataValues);
             await UserService.getUserByEmail("test@test.com").catch(e => fail(e));
             expect(user.findOne).toBeCalledWith(expect.objectContaining({
                 where: {

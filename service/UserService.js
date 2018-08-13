@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const errorFormatter = require('../utils/errorFormatter');
 const { user } = require('../models').sequelize.models;
 const secretKey = process.env.CLIENTSECRET || require('../config/secretKey.json').secretKey;
-const brcypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const LOGGER = require('../utils/logger');
 
@@ -31,18 +31,20 @@ class UserService {
         }
     }
 
-    async getUserByEmailAndPassword(email, password) {
+    async getUserTokenByEmailAndPassword(email, password) {
         try {
             await _validateRequest(email, password);
             const userRecord = await this.getUserByEmail(email);
-
-            const isAuthorized = await _isAuthorized(password, userRecord.dataValues.password);
+            const isAuthorized = await _isAuthorized(password, userRecord.password);
 
             if (isAuthorized) {
-                return userRecord.dataValues;
+                return { 
+                    id: userRecord.id,
+                    userEmail: userRecord.email,
+                    token: await _generateUserToken(userRecord.id, userRecord.email)
+                }
             } 
             throw "Invalid password."
-                      
         } catch (e) {
             LOGGER.error(`An error occured while calling getUserByEmailAndPassword: ${e}`)
             throw errorFormatter(e);
@@ -62,11 +64,8 @@ class UserService {
         }
     }
 
-    // async deleteUser(email) {
-    //     // try {
-            
-    //     // }
-    // }
+    async deleteUserById(email) {
+    }
 }
 
 const _generateUserToken = (id, email) => {
@@ -91,9 +90,11 @@ const _validateRequest = (email, password) => {
 }
 
 const _isAuthorized = (password, hash) => {
-    return brcypt.compare(password, hash, (err, res) => {
-        if (err) throw "An unexpected error occurred.";
-        return res;
+    return new Promise((resolve, reject) => {
+        bcrypt.compare(password, hash, (err, res) => {
+            if (err) reject("An unexpected error occurred.");
+            resolve(res);
+        });
     });
 }
 
