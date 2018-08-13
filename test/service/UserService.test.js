@@ -1,6 +1,7 @@
 const { user } = require('../../models').sequelize.models;
 const UserService = require('../../service/UserService');
-const sequelize = require('sequelize');
+jest.mock('bcryptjs');
+const bcrypt = require('bcryptjs');
 
 describe('UserService', () => {
     let queryResult;
@@ -18,11 +19,12 @@ describe('UserService', () => {
             expect(result.id).toEqual(queryResult.dataValues.id);
         });
 
-        it('should throw an exception if password is less than 5 characters', () => {
+        it('should throw an exception if password is less than 5 characters', async() => {
             try {
-                expect(UserService.createUser("test@test.com", "123")).rejects.toEqual("Password must be atleast 5 characters.");
+                await UserService.createUser("test@test.com", "123");
             } catch (e) {
                 expect(e).toBeDefined();
+                expect(e).toEqual("Password must be atleast 5 characters.");
             }
         });
 
@@ -79,14 +81,28 @@ describe('UserService', () => {
         });
     });
 
-    // describe('getUserByEmailAndPassword', () => {
-    //     it('should return user if valid email password combination', async() => { 
-    //         user.findOne = jest.fn().mockResolvedValue(queryResult);
-    //         const result = await UserService.getUserByEmailAndPassword("test@test.com", "test12345")
-    //         expect(user.findOne).toBeCalledWith("test@test.com", "test12345");
-    //         expect(result.email).toEqual(queryResult.dataValues.email);
-    //         expect(result.id).toEqual(queryResult.dataValues.id);
-    //         expect(result.password).toEqual(queryResult.dataValues.password);
-    //     });
-    // });
+    describe('getUserByEmailAndPassword', () => {
+        it('should return user if valid email password combination', async() => { 
+            bcrypt.compare = jest.fn(() => true);
+            queryResult.dataValues.password = "HASHEDPASSWORD";
+            UserService.getUserByEmail = jest.fn().mockResolvedValue(queryResult);
+            const result = await UserService.getUserByEmailAndPassword("test@test.com", "test12345");
+            expect(bcrypt.compare).toBeCalledWith("test12345", "HASHEDPASSWORD", expect.any(Function));
+            expect(result.email).toEqual(queryResult.dataValues.email);
+            expect(result.id).toEqual(queryResult.dataValues.id);
+            expect(result.password).toEqual(queryResult.dataValues.password);
+        });
+
+        it('should throw invalid password exception', async() => {
+            bcrypt.compare = jest.fn(() => false);
+            queryResult.dataValues.password = "HASHEDPASSWORD";
+            UserService.getUserByEmail = jest.fn().mockResolvedValue(queryResult);
+            try {
+                const result = await UserService.getUserByEmailAndPassword("test@test.com", "INVALIDPW");
+            } catch (e) {
+                expect(e).toEqual('Invalid password.');
+                expect(bcrypt.compare).toBeCalledWith("INVALIDPW", "HASHEDPASSWORD", expect.any(Function));
+            }
+        });
+    });
 });

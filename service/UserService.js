@@ -34,9 +34,15 @@ class UserService {
     async getUserByEmailAndPassword(email, password) {
         try {
             await _validateRequest(email, password);
-            userRecord = await this.getUserByEmail(email);
-            if (userRecord === null) throw "User does not exist.";
+            const userRecord = await this.getUserByEmail(email);
 
+            const isAuthorized = await _isAuthorized(password, userRecord.dataValues.password);
+
+            if (isAuthorized) {
+                return userRecord.dataValues;
+            } 
+            throw "Invalid password."
+                      
         } catch (e) {
             LOGGER.error(`An error occured while calling getUserByEmailAndPassword: ${e}`)
             throw errorFormatter(e);
@@ -84,8 +90,11 @@ const _validateRequest = (email, password) => {
     });
 }
 
-const _isAuthorized = (password) => {
-    brcypt.compare()
+const _isAuthorized = (password, hash) => {
+    return brcypt.compare(password, hash, (err, res) => {
+        if (err) throw "An unexpected error occurred.";
+        return res;
+    });
 }
 
 module.exports = (new UserService());
