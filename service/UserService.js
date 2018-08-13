@@ -1,18 +1,45 @@
 const jwt = require('jsonwebtoken');
+const errorFormatter = require('../utils/errorFormatter');
 const { user } = require('../models').sequelize.models;
 const secretKey = process.env.CLIENTSECRET || require('../config/secretKey.json').secretKey;
-const bcrypt = require('bcryptjs');
+const brcypt = require('bcryptjs');
+const validator = require('validator');
 const LOGGER = require('../utils/logger');
+
 
 class UserService {
 
     async getUserById(id) {
         try {
-            const { dataValues } = await user.findOne({ where: { id } });
-            return dataValues;
+            const userRecord = await user.findById(id);
+            if (userRecord === null) throw "User does not exist.";
+            return userRecord.dataValues;
+        } catch (e) { 
+            LOGGER.error(`An error occurred while calling getUserById: ${e}`);
+            throw errorFormatter(e);
+        }
+    }
+
+    async getUserByEmail(email) {
+        try {
+            const userRecord = await user.findOne({ where: { email } });
+            if (userRecord === null) throw "User does not exist.";
+            return userRecord.dataValues;
         } catch (e) {
             LOGGER.error(`An error occurred while calling getUserByEmail: ${e}`);
-            throw Error(e);
+            throw errorFormatter(e);
+        }
+    }
+
+    async getUserByEmailAndPassword(email, password) {
+        try {
+            await _validateRequest(email, password);
+            userRecord = await this.getUserByEmail(email);
+            if (userRecord === null) throw "User does not exist.";
+
+        } catch (e) {
+            LOGGER.error(`An error occured while calling getUserByEmailAndPassword: ${e}`)
+            throw errorFormatter(e);
         }
     }
 
@@ -20,12 +47,12 @@ class UserService {
         try {
             await _validateRequest(email, password);
             const userRecord = await user.create({ email, password })
-                                            .then(result => result.dataValues);
+                                         .then(result => result.dataValues);
             const token = await _generateUserToken(userRecord.id, email);
             return { id: userRecord.id, email: userRecord.email, token };
         } catch (e) {
-            LOGGER.error(`An error occured while creating a user record: ${e}`)
-            throw e;
+            LOGGER.error(`An error occured while creating a user record: ${e}`);
+            throw errorFormatter(e);
         }
     }
 
@@ -50,10 +77,15 @@ const _generateUserToken = (id, email) => {
 
 const _validateRequest = (email, password) => {
     return new Promise((resolve, reject) => {
-        if (!password || password.length < 5) reject("Password must be atleast 5 characters.");
         if (!email) reject("Email cannot be blank.");
+        if (!validator.isEmail(String(email))) reject("Email format is invalid.");
+        if (!password) reject("Password cannot be blank.");
         resolve();
     });
+}
+
+const _isAuthorized = (password) => {
+    brcypt.compare()
 }
 
 module.exports = (new UserService());

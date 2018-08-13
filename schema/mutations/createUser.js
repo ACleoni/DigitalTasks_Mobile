@@ -1,5 +1,6 @@
 const UserService = require('../../service/UserService');
 const { UserType } = require('../types');
+const errorFormatter = require('../../utils/errorFormatter');
 const {
     GraphQLString
 } = require('graphql');
