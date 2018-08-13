@@ -1,6 +1,5 @@
 const { user } = require('../../models').sequelize.models;
 const UserService = require('../../service/UserService');
-jest.mock('bcryptjs');
 const bcrypt = require('bcryptjs');
 
 describe('UserService', () => {
@@ -81,27 +80,27 @@ describe('UserService', () => {
         });
     });
 
-    describe('getUserByEmailAndPassword', () => {
-        it('should return user if valid email password combination', async() => { 
-            bcrypt.compare = jest.fn(() => true);
+    describe('getUserTokenByEmailAndPassword', () => {
+        it('should return user id, email, and token if valid email password combination', async() => { 
+            bcrypt.compare = jest.fn().mockResolvedValue(true);
             queryResult.dataValues.password = "HASHEDPASSWORD";
-            UserService.getUserByEmail = jest.fn().mockResolvedValue(queryResult);
-            const result = await UserService.getUserByEmailAndPassword("test@test.com", "test12345");
-            expect(bcrypt.compare).toBeCalledWith("test12345", "HASHEDPASSWORD", expect.any(Function));
-            expect(result.email).toEqual(queryResult.dataValues.email);
+            UserService.getUserByEmail = jest.fn().mockResolvedValue(queryResult.dataValues);
+            const result = await UserService.getUserTokenByEmailAndPassword("test@test.com", "test12345");
+            expect(bcrypt.compare).toBeCalledWith("test12345", "HASHEDPASSWORD");
+            expect(result.userEmail).toEqual(queryResult.dataValues.email);
             expect(result.id).toEqual(queryResult.dataValues.id);
-            expect(result.password).toEqual(queryResult.dataValues.password);
+            expect(result.token).toBeDefined();
         });
 
         it('should throw invalid password exception', async() => {
-            bcrypt.compare = jest.fn(() => false);
+            bcrypt.compare = jest.fn().mockResolvedValue(false);
             queryResult.dataValues.password = "HASHEDPASSWORD";
-            UserService.getUserByEmail = jest.fn().mockResolvedValue(queryResult);
+            UserService.getUserByEmail = jest.fn().mockResolvedValue(queryResult.dataValues);
             try {
-                const result = await UserService.getUserByEmailAndPassword("test@test.com", "INVALIDPW");
+                const result = await UserService.getUserTokenByEmailAndPassword("test@test.com", "INVALIDPW");
             } catch (e) {
                 expect(e).toEqual('Invalid password.');
-                expect(bcrypt.compare).toBeCalledWith("INVALIDPW", "HASHEDPASSWORD", expect.any(Function));
+                expect(bcrypt.compare).toBeCalledWith("INVALIDPW", "HASHEDPASSWORD");
             }
         });
     });
