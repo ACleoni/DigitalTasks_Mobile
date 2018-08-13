@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const errorFormatter = require('../utils/errorFormatter');
 const { user } = require('../models').sequelize.models;
-const secretKey = process.env.CLIENTSECRET || require('../config/secretKey.json').secretKey;
+const secretKey = process.env.CLIENTSECRET || require('../config/secretKey').secretKey;
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const LOGGER = require('../utils/logger');

@@ -21,6 +21,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+    },
+    confirmation_email_expiration_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: (() => {
+            let time = new Date();
+            time.setHours(time.getHours() + 4);
+            return time;
+        })
     }
 }, { 
     hooks: {
