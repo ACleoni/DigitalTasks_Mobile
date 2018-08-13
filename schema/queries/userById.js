@@ -7,8 +7,8 @@ const LOGGER = require('../../utils/logger');
 
 module.exports = {
         type: UserType,
-        args: { id: { type: GraphQLInt } },
-        resolve: async(obj, { id }, { user }) => {
+        resolve: async(obj, args, { user }) => {
+            console.log(user);
             if (!user) {
                 LOGGER.error("Unauthorized Request");
                 throw Error("Unauthorized request.");

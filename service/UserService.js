@@ -10,8 +10,10 @@ const LOGGER = require('../utils/logger');
 class UserService {
 
     async getUserById(id) {
+        console.log(id);
         try {
             const userRecord = await user.findById(id);
+            console.log(userRecord);
             if (userRecord === null) throw "User does not exist.";
             return userRecord.dataValues;
         } catch (e) { 
