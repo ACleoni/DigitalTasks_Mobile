@@ -1,5 +1,6 @@
 'use strict';
 const bcrypt = require('bcryptjs');
+const setTokenExp = require('../utils/setTokenExp')
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('user', {
@@ -25,11 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     confirmation_email_expiration_date: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: (() => {
-            let time = new Date();
-            time.setHours(time.getHours() + 4);
-            return time;
-        })
+        defaultValue: setTokenExp(0, 0, 4)
     }
 }, { 
     hooks: {

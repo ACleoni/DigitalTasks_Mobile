@@ -4,6 +4,7 @@ const { user } = require('../models').sequelize.models;
 const secretKey = process.env.CLIENTSECRET || require('../config/secretKey').secretKey;
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
+const setTokenExp = require('../utils/setTokenExp');
 const LOGGER = require('../utils/logger');
 
 
@@ -65,6 +66,17 @@ class UserService {
     }
 
     async deleteUserById(email) {
+    }
+
+    async updateConfirmationToken(email) {
+        try {
+            const updatedColumns = { confirmation_email_expiration_date: setTokenExp() }
+            const result = await user.update(updatedColumns, { where: { email } });
+            if (result[0] < 1) throw "Unable to update confirmation token by user email."
+        } catch (e) {
+            LOGGER.error(`An error occurred during updateConfirmationToken(): ${e}`);
+            throw errorFormatter(e);
+        }
     }
 }
 

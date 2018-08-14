@@ -9,7 +9,7 @@ describe('UserService', () => {
         queryResult = { dataValues: { id: 1, email: "test@test.com", password: "test12345" } };
     });
 
-    describe('createUser()', () => {
+    describe('createUser', () => {
         it('should return user id and email without an exception', async () => {
             user.create = jest.fn().mockResolvedValue(queryResult);
             const result = await UserService.createUser("test@test.com", "12345678").catch(e => fail(e));
@@ -36,7 +36,7 @@ describe('UserService', () => {
         });
     });
 
-    describe('getUserById()', () => {
+    describe('getUserById', () => {
         it('should return user record without an exception', async () => {
             user.findById = jest.fn().mockResolvedValue(queryResult);
             const result = await UserService.getUserById(1).catch(e => fail(e));
@@ -102,6 +102,12 @@ describe('UserService', () => {
                 expect(e).toEqual('Invalid password.');
                 expect(bcrypt.compare).toBeCalledWith("INVALIDPW", "HASHEDPASSWORD");
             }
+        });
+    });
+
+    describe('updateTokenExpDate', () => {
+        it('should update confirmation email token expiration date', () => {
+            UserService.updateConfirmationToken(email);
         });
     });
 });
