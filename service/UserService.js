@@ -72,12 +72,15 @@ class UserService {
         try {
             const updatedColumns = { confirmation_email_expiration_date: setTokenExp() }
             const result = await user.update(updatedColumns, { where: { email } });
-            if (result[0] < 1) throw "Unable to update confirmation token by user email."
+            if (result[0] < 1) throw "Unable to update confirmation token by user email.";
+            return result[0];
         } catch (e) {
             LOGGER.error(`An error occurred during updateConfirmationToken(): ${e}`);
             throw errorFormatter(e);
         }
     }
+
+    // async update
 }
 
 const _generateUserToken = (id, email) => {

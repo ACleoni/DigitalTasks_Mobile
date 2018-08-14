@@ -92,7 +92,7 @@ describe('UserService', () => {
             expect(result.token).toBeDefined();
         });
 
-        it('should throw invalid password exception', async() => {
+        it('should throw invalid password exception', async () => {
             bcrypt.compare = jest.fn().mockResolvedValue(false);
             queryResult.dataValues.password = "HASHEDPASSWORD";
             UserService.getUserByEmail = jest.fn().mockResolvedValue(queryResult.dataValues);
@@ -105,9 +105,24 @@ describe('UserService', () => {
         });
     });
 
-    describe('updateTokenExpDate', () => {
-        it('should update confirmation email token expiration date', () => {
-            UserService.updateConfirmationToken(email);
+    describe('updateConfirmationToken', () => {
+        it('should update confirmation email token expiration date', async () => {
+            user.update = jest.fn().mockResolvedValue([1]);
+            try {
+                const result = await UserService.updateConfirmationToken("test@test.com");
+                expect(result).toEqual(1);
+            } catch (e) {
+                fail(e);
+            }
+        });
+
+        it('should throw exception when email does not exist in database', async () => {
+            user.update = jest.fn().mockResolvedValue([0]);
+            try {
+                const result = await UserService.updateConfirmationToken("INVALIDEMAIL");
+            } catch (e) {
+                expect(e).toEqual("Unable to update confirmation token by user email.");
+            }
         });
     });
 });

@@ -55,6 +55,17 @@ describe('User Model', () => {
                                   expect(e.toString()).toBe("SequelizeValidationError: notNull Violation: user.email cannot be null");
                                 });
         });
+
+        it('should set default confirmation exp to Date() plus config settings', async () => {
+            const user = await models.user.create({ email: sampleUser.email, password: sampleUser.password });
+            expect(user.dataValues.confirmation_email_expiration_date).toBeDefined();
+            expect(user.dataValues.confirmation_email_expiration_date).not.toBeNull();
+        });
+
+        it('should set email confirmation to false by default', async () => {
+            const user = await models.user.create({ email: sampleUser.email, password: sampleUser.password });
+            expect(user.dataValues.email_confirmed).toBe(false);
+        });
     });
 
     /* Clear all rows in database */

@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: false
     },
+    confirmation_email_token: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     confirmation_email_expiration_date: {
         type: DataTypes.DATE,
         allowNull: false,
