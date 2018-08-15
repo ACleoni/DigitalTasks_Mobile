@@ -10,60 +10,63 @@ describe('User Model', () => {
 
     beforeEach(() => {
         sampleUser = {
-            id: 123,
             email: "test@test.com",
-            password: "123456789"
+            password: "123456789",
+            confirmation_email_token: "1234567"
         }
     });
 
     describe('User.create()', () => {
         it('should successfully create a new user', async () => {
-            const user = await models.user.create({ email: sampleUser.email, password: sampleUser.password });
+            const user = await models.user.create(sampleUser);
             expect(user.dataValues.email).toBe(sampleUser.email);
         });
 
         it('should hash password before creating user record', async () => {
-            const user = await models.user.create({ email: sampleUser.email, password: sampleUser.password })
+            const user = await models.user.create(sampleUser)
                                           .catch((e) => new Error(e));
 
             expect(user.dataValues.password.slice(0, 6)).toBe('$2a$10');
         });
 
         it('should throw an exception if password is less than 5 characters in length', () => {
-            return  models.user.create({ email: sampleUser.email, password: "1" })
-                               .then(() => expect.fail('Created user', 'Expected exception'))
+            sampleUser.password = "1";
+            return  models.user.create(sampleUser)
+                               .then(() => fail('Created user', 'Expected exception'))
                                .catch((e) => expect(e.toString()).toBe("SequelizeValidationError: Validation error: Password must be atleast 5 characters"));
-
         });
 
         it('should throw an exception if invalid email format', () => {
-            return models.user.create({ email: "invalid email", password: sampleUser.password })
-                              .then(() => expect.fail('Created user', 'Expected exception'))
+            sampleUser.email = "invalid email";
+            return models.user.create(sampleUser)
+                              .then(() => fail('Created user', 'Expected exception'))
                               .catch(e => expect(e.errors[0].message).toBe("Please enter a valid email address"));
         });
 
         it('should throw password cannot be blank exception', () => {
-            return models.user.create({ email: sampleUser.email })
-                              .then(() => expect.fail('Created user', 'Expected exception'))
-                              .catch(e => expect(e.toString()).toBe("SequelizeValidationError: notNull Violation: user.password cannot be null"));
+            sampleUser.password = "";
+            return models.user.create(sampleUser)
+                              .then(() => fail('Created user', 'Expected exception'))
+                              .catch(e => expect(e.toString()).toBe("SequelizeValidationError: Validation error: Password must be atleast 5 characters"));
         });
 
         it('should throw email cannot be blank exception', () => {
-            return models.user.create({ password: sampleUser.password })
-                              .then(() => expect.fail('Created user', 'Expected exception'))
+            sampleUser.email = "";
+            return models.user.create(sampleUser)
+                              .then(() => fail('Created user', 'Expected exception'))
                               .catch(e => {
-                                  expect(e.toString()).toBe("SequelizeValidationError: notNull Violation: user.email cannot be null");
+                                  expect(e.toString()).toBe("SequelizeValidationError: Validation error: Please enter a valid email address");
                                 });
         });
 
         it('should set default confirmation exp to Date() plus config settings', async () => {
-            const user = await models.user.create({ email: sampleUser.email, password: sampleUser.password });
+            const user = await models.user.create(sampleUser);
             expect(user.dataValues.confirmation_email_expiration_date).toBeDefined();
             expect(user.dataValues.confirmation_email_expiration_date).not.toBeNull();
         });
 
         it('should set email confirmation to false by default', async () => {
-            const user = await models.user.create({ email: sampleUser.email, password: sampleUser.password });
+            const user = await models.user.create(sampleUser);
             expect(user.dataValues.email_confirmed).toBe(false);
         });
     });

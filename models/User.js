@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     confirmation_email_expiration_date: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: setTokenExp(0, 0, 4)
+        defaultValue: setTokenExp()
     }
 }, { 
     hooks: {
