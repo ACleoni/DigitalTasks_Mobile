@@ -7,6 +7,7 @@ describe('User Model', () => {
         await require('../util/setup')();
         models = require('../../models').sequelize.models;
     });
+    
 
     beforeEach(() => {
         sampleUser = {
@@ -76,7 +77,6 @@ describe('User Model', () => {
         return models.user.destroy({
             where: { }
         })
-        .then(() => { })
         .catch((e) => console.log(e))
     });
 });

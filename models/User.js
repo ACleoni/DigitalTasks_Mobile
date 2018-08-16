@@ -18,16 +18,16 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: { len: { args: [5], msg: "Password must be atleast 5 characters" } }
     },
-    email_confirmed: {
+    emailConfirmed: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
     },
-    confirmation_email_token: {
+    confirmationEmailToken: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    confirmation_email_expiration_date: {
+    confirmationEmailExpirationDate: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: setTokenExp()

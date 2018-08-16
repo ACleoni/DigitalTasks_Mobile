@@ -4,6 +4,8 @@ const { user } = require('../models').sequelize.models;
 const secretKey = process.env.CLIENTSECRET || require('../config/secretKey').secretKey;
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
+const crypto = require('crypto');
+const EmailService = require('./EmailService');
 const setTokenExp = require('../utils/setTokenExp');
 const LOGGER = require('../utils/logger');
 
@@ -55,9 +57,12 @@ class UserService {
     async createUser(email, password) {
         try {
             await _validateRequest(email, password);
-            const userRecord = await user.create({ email, password })
+            const confirmationEmailToken = await _generateEmailToken();
+            const userRecord = await user.create({ email, password, confirmationEmailToken })
                                          .then(result => result.dataValues);
-            const token = await _generateUserToken(userRecord.id, email);
+
+            const token = await _generateUserToken(userRecord.id, userRecord.email);
+            await EmailService.sendConfirmationEmail(userRecord.email, userRecord.confirmationEmailToken);
             return { id: userRecord.id, email: userRecord.email, token };
         } catch (e) {
             LOGGER.error(`An error occured while creating a user record: ${e}`);
@@ -79,8 +84,6 @@ class UserService {
             throw errorFormatter(e);
         }
     }
-
-    // async update
 }
 
 const _generateUserToken = (id, email) => {
@@ -106,6 +109,15 @@ const _validateRequest = (email, password) => {
 
 const _isAuthorized = (password, hash) => {
     return bcrypt.compare(password, hash);
+}
+
+const _generateEmailToken = () => {
+    return new Promise((resolve, reject) => {
+        crypto.randomBytes(32, (err, buf) => {
+            if (err) reject(err);
+            resolve(buf.toString('hex'));
+        });
+    });
 }
 
 module.exports = (new UserService());
