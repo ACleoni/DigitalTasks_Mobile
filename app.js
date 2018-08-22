@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const graphqlHTTP = require('express-graphql');
 const GraphQLSchema = require('./schema/schema');
 const isAuthorized = require('./utils/isAuthorized');
+const usersRoute = require('./routes/users');
 
 const app = express();
 // uncomment after placing your favicon in /public
@@ -25,6 +26,7 @@ app.use('/graphql', graphqlHTTP((req, res) => ({
     message: error.message
   })
 })));
+app.use('/users', usersRoute);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

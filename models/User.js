@@ -1,5 +1,6 @@
 'use strict';
 const bcrypt = require('bcryptjs');
+const setTokenExp = require('../utils/setTokenExp')
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('user', {
@@ -17,10 +18,19 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: { len: { args: [5], msg: "Password must be atleast 5 characters" } }
     },
-    email_confirmed: {
+    emailConfirmed: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+    },
+    confirmationEmailToken: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    confirmationEmailExpirationDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: setTokenExp()
     }
 }, { 
     hooks: {

@@ -1,9 +1,12 @@
 const jwt = require('jsonwebtoken');
 const errorFormatter = require('../utils/errorFormatter');
 const { user } = require('../models').sequelize.models;
-const secretKey = process.env.CLIENTSECRET || require('../config/secretKey.json').secretKey;
+const secretKey = process.env.CLIENTSECRET || require('../config/secretKey').secretKey;
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
+const crypto = require('crypto');
+const EmailService = require('./EmailService');
+const setTokenExp = require('../utils/setTokenExp');
 const LOGGER = require('../utils/logger');
 
 
@@ -14,7 +17,7 @@ class UserService {
             const userRecord = await user.findById(id);
             if (userRecord === null) throw "User does not exist.";
             return userRecord.dataValues;
-        } catch (e) { 
+        } catch (e) {
             LOGGER.error(`An error occurred while calling getUserById: ${e}`);
             throw errorFormatter(e);
         }
@@ -38,12 +41,12 @@ class UserService {
             const isAuthorized = await _isAuthorized(password, userRecord.password);
 
             if (isAuthorized) {
-                return { 
+                return {
                     id: userRecord.id,
                     userEmail: userRecord.email,
                     token: await _generateUserToken(userRecord.id, userRecord.email)
                 }
-            } 
+            }
             throw "Invalid password."
         } catch (e) {
             LOGGER.error(`An error occured while calling getUserByEmailAndPassword: ${e}`)
@@ -54,9 +57,12 @@ class UserService {
     async createUser(email, password) {
         try {
             await _validateRequest(email, password);
-            const userRecord = await user.create({ email, password })
-                                         .then(result => result.dataValues);
-            const token = await _generateUserToken(userRecord.id, email);
+            const confirmationEmailToken = await _generateEmailToken();
+            const userRecord = await user.create({ email, password, confirmationEmailToken })
+                .then(result => result.dataValues);
+
+            const token = await _generateUserToken(userRecord.id, userRecord.email);
+            await EmailService.sendConfirmationEmail(userRecord.email, userRecord.confirmationEmailToken);
             return { id: userRecord.id, email: userRecord.email, token };
         } catch (e) {
             LOGGER.error(`An error occured while creating a user record: ${e}`);
@@ -65,6 +71,28 @@ class UserService {
     }
 
     async deleteUserById(email) {
+    }
+
+    async updateConfirmationToken(email) {
+        try {
+            const updatedColumns = { confirmation_email_expiration_date: setTokenExp() }
+            const result = await user.update(updatedColumns, { where: { email } });
+            if (result[0] < 1) throw "Unable to update confirmation token by user email.";
+            return result[0];
+        } catch (e) {
+            LOGGER.error(`An error occurred during updateConfirmationToken(): ${e}`);
+            throw errorFormatter(e);
+        }
+    }
+
+    async updateUser(updates, searchCriteria) {
+        try {
+            const result = await user.update(updates, { where: searchCriteria });
+            if (result[0] < 1) throw "Unable to update user record.";
+        } catch (e) {
+            LOGGER.error(`An error occurred during updateUser(): ${e}`);
+            throw errorFormatter(e);
+        }
     }
 }
 
@@ -91,6 +119,15 @@ const _validateRequest = (email, password) => {
 
 const _isAuthorized = (password, hash) => {
     return bcrypt.compare(password, hash);
+}
+
+const _generateEmailToken = () => {
+    return new Promise((resolve, reject) => {
+        crypto.randomBytes(32, (err, buf) => {
+            if (err) reject(err);
+            resolve(buf.toString('hex'));
+        });
+    });
 }
 
 module.exports = (new UserService());

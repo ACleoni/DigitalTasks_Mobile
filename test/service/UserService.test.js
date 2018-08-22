@@ -9,7 +9,7 @@ describe('UserService', () => {
         queryResult = { dataValues: { id: 1, email: "test@test.com", password: "test12345" } };
     });
 
-    describe('createUser()', () => {
+    describe('createUser', () => {
         it('should return user id and email without an exception', async () => {
             user.create = jest.fn().mockResolvedValue(queryResult);
             const result = await UserService.createUser("test@test.com", "12345678").catch(e => fail(e));
@@ -36,7 +36,7 @@ describe('UserService', () => {
         });
     });
 
-    describe('getUserById()', () => {
+    describe('getUserById', () => {
         it('should return user record without an exception', async () => {
             user.findById = jest.fn().mockResolvedValue(queryResult);
             const result = await UserService.getUserById(1).catch(e => fail(e));
@@ -92,7 +92,7 @@ describe('UserService', () => {
             expect(result.token).toBeDefined();
         });
 
-        it('should throw invalid password exception', async() => {
+        it('should throw invalid password exception', async () => {
             bcrypt.compare = jest.fn().mockResolvedValue(false);
             queryResult.dataValues.password = "HASHEDPASSWORD";
             UserService.getUserByEmail = jest.fn().mockResolvedValue(queryResult.dataValues);
@@ -104,4 +104,37 @@ describe('UserService', () => {
             }
         });
     });
+
+    describe('updateConfirmationToken', () => {
+        it('should update confirmation email token expiration date', async () => {
+            user.update = jest.fn().mockResolvedValue([1]);
+            try {
+                const result = await UserService.updateConfirmationToken("test@test.com");
+                expect(result).toEqual(1);
+            } catch (e) {
+                fail(e);
+            }
+        });
+
+        it('should throw exception when email does not exist in database', async () => {
+            user.update = jest.fn().mockResolvedValue([0]);
+            try {
+                const result = await UserService.updateConfirmationToken("INVALIDEMAIL");
+            } catch (e) {
+                expect(e).toEqual("Unable to update confirmation token by user email.");
+            }
+        });
+    });
+
+    // describe('findUserByConfirmationToken', () => {
+    //     it('should update user account to confirmed if token is valid', () => {
+    //         // user.update = jest.fn().mockResolvedValue();
+    //         try {
+    //             const result = await UserService.getU("test@test.com");
+    //             expect(result).toEqual(1);
+    //         } catch (e) {
+    //             fail(e);
+    //         }
+    //     });
+    // });
 });
