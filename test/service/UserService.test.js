@@ -125,4 +125,16 @@ describe('UserService', () => {
             }
         });
     });
+
+    // describe('findUserByConfirmationToken', () => {
+    //     it('should update user account to confirmed if token is valid', () => {
+    //         // user.update = jest.fn().mockResolvedValue();
+    //         try {
+    //             const result = await UserService.getU("test@test.com");
+    //             expect(result).toEqual(1);
+    //         } catch (e) {
+    //             fail(e);
+    //         }
+    //     });
+    // });
 });

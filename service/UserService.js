@@ -17,7 +17,7 @@ class UserService {
             const userRecord = await user.findById(id);
             if (userRecord === null) throw "User does not exist.";
             return userRecord.dataValues;
-        } catch (e) { 
+        } catch (e) {
             LOGGER.error(`An error occurred while calling getUserById: ${e}`);
             throw errorFormatter(e);
         }
@@ -41,12 +41,12 @@ class UserService {
             const isAuthorized = await _isAuthorized(password, userRecord.password);
 
             if (isAuthorized) {
-                return { 
+                return {
                     id: userRecord.id,
                     userEmail: userRecord.email,
                     token: await _generateUserToken(userRecord.id, userRecord.email)
                 }
-            } 
+            }
             throw "Invalid password."
         } catch (e) {
             LOGGER.error(`An error occured while calling getUserByEmailAndPassword: ${e}`)
@@ -59,7 +59,7 @@ class UserService {
             await _validateRequest(email, password);
             const confirmationEmailToken = await _generateEmailToken();
             const userRecord = await user.create({ email, password, confirmationEmailToken })
-                                         .then(result => result.dataValues);
+                .then(result => result.dataValues);
 
             const token = await _generateUserToken(userRecord.id, userRecord.email);
             await EmailService.sendConfirmationEmail(userRecord.email, userRecord.confirmationEmailToken);
@@ -81,6 +81,16 @@ class UserService {
             return result[0];
         } catch (e) {
             LOGGER.error(`An error occurred during updateConfirmationToken(): ${e}`);
+            throw errorFormatter(e);
+        }
+    }
+
+    async updateUser(updates, searchCriteria) {
+        try {
+            const result = await user.update(updates, { where: searchCriteria });
+            if (result[0] < 1) throw "Unable to update user record.";
+        } catch (e) {
+            LOGGER.error(`An error occurred during updateUser(): ${e}`);
             throw errorFormatter(e);
         }
     }
