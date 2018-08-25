@@ -28,6 +28,6 @@ module.exports = {
     "tokenExpHours": 4
   },
   base: {
-    "url": process.env.URI || `localhost:${process.env.PORT}` 
+    "url": process.env.URI || `http://localhost:` + (process.env.PORT || '3000') 
   }
 }

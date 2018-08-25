@@ -10,7 +10,7 @@ class EmailService {
             to: email,
             from: 'dcdigitaltasks@gmail.com',
             subject: 'DigitalTasks: Confirm your email address.',
-            html: `Click <a href="${url + '?confirmation_token=' + token}">here</a> to confirm your email address`,
+            html: `Click <a href="${url + '/users/confirmation' + '?confirmation_token=' + token}">here</a> to confirm your email address`,
         };
         sgMail.send(msg);
     }

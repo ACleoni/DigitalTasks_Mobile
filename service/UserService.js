@@ -59,7 +59,7 @@ class UserService {
             await _validateRequest(email, password);
             const confirmationEmailToken = await _generateEmailToken();
             const userRecord = await user.create({ email, password, confirmationEmailToken })
-                .then(result => result.dataValues);
+                                         .then(result => result.dataValues);
 
             const token = await _generateUserToken(userRecord.id, userRecord.email);
             await EmailService.sendConfirmationEmail(userRecord.email, userRecord.confirmationEmailToken);
@@ -73,7 +73,7 @@ class UserService {
     async deleteUserById(email) {
     }
 
-    async updateConfirmationToken(email) {
+    async updateEmailConfirmationToken(email) {
         try {
             const updatedColumns = { confirmation_email_expiration_date: setTokenExp() }
             const result = await user.update(updatedColumns, { where: { email } });
@@ -81,6 +81,19 @@ class UserService {
             return result[0];
         } catch (e) {
             LOGGER.error(`An error occurred during updateConfirmationToken(): ${e}`);
+            throw errorFormatter(e);
+        }
+    }
+
+    async confirmEmailAddress(confirmationEmailToken) {
+        try {
+            const userRecord = _getUser({ confirmationEmailToken });
+            if (userRecord === null) throw "Invalid Token.";
+            if ((new Date()) >= userRecord.confirmationEmailExpirationDate) throw "Token expired."
+            const result = this.updateUser({ emailConfirmed: true }, { confirmationEmailToken });
+            return (result[0] < 1);
+        } catch (e) {
+            LOGGER.error(`An error occurred during confirmEmailAddress(): ${e}`);
             throw errorFormatter(e);
         }
     }
@@ -128,6 +141,10 @@ const _generateEmailToken = () => {
             resolve(buf.toString('hex'));
         });
     });
+}
+
+const _getUser = async (searchCriteria) => {
+     return await user.findOne({ where: searchCriteria });
 }
 
 module.exports = (new UserService());
