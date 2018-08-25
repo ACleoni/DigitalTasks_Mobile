@@ -4,7 +4,7 @@ import
     LOGIN
 } from './index';
 
-const login = (user) => dispatch =>
+const loginAction = (user) => dispatch =>
 {
     dispatch(
         {
@@ -16,11 +16,11 @@ const login = (user) => dispatch =>
 
 export
 {
-    login
+    loginAction
 }
 
 export default
 {
-    login
+    loginAction
 }
 

@@ -10,7 +10,7 @@ from '../screens/Login';
 
 import
 {
-    login
+    loginAction
 } from '../redux/actions';
 
 const mapStateToProps = (state) =>
@@ -23,9 +23,9 @@ const mapStateToProps = (state) =>
 const mapDispatchToProps = (dispatch) => 
 {
     return {
-        login: (user) =>
+        loginAction: (user) =>
         {
-            dispatch(login(user))
+            dispatch(loginAction(user))
         }
     }
 };
