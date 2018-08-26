@@ -2,8 +2,8 @@ const { username, password, database, host } = require('../../config/config').da
 const { Client } = require('pg');
 /* Set env to 'test' prior to syncing schema */
 const models = require('../../models');
-
-module.exports = () => {
+console.log(process.env.NODE_ENV);
+(() => {
     return new Promise((resolve, reject) => {
         /* Attempt to connect to test database */
         const clientPrimary = new Client({
@@ -18,7 +18,6 @@ module.exports = () => {
             host,
             password
         });
-        
         (async () => {
             try {
                 await clientPrimary.connect();
@@ -31,11 +30,11 @@ module.exports = () => {
                 }
             }
             await models.sequelize.sync({force: true});
+            await models.sequelize.close();
             resolve();
         })()
         .catch((e) => {
             reject(e);
         });
     });
-}
-
+})();

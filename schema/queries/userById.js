@@ -8,7 +8,6 @@ const LOGGER = require('../../utils/logger');
 module.exports = {
         type: UserType,
         resolve: async(obj, args, { user }) => {
-            console.log(user);
             if (!user) {
                 LOGGER.error("Unauthorized Request");
                 throw Error("Unauthorized request.");
