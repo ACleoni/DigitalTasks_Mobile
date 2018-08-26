@@ -90,8 +90,8 @@ class UserService {
             const userRecord = _getUser({ confirmationEmailToken });
             if (userRecord === null) throw "Invalid Token.";
             if ((new Date()) >= userRecord.confirmationEmailExpirationDate) throw "Token expired."
-            const result = this.updateUser({ emailConfirmed: true }, { confirmationEmailToken });
-            return (result[0] < 1);
+            const result = await this.updateUser({ emailConfirmed: true }, { confirmationEmailToken });
+            return (result[0] > 0);
         } catch (e) {
             LOGGER.error(`An error occurred during confirmEmailAddress(): ${e}`);
             throw errorFormatter(e);
@@ -102,6 +102,7 @@ class UserService {
         try {
             const result = await user.update(updates, { where: searchCriteria });
             if (result[0] < 1) throw "Unable to update user record.";
+            return result;
         } catch (e) {
             LOGGER.error(`An error occurred during updateUser(): ${e}`);
             throw errorFormatter(e);

@@ -4,8 +4,8 @@ describe('User Model', () => {
 
     /* Create test database if necessary */
     beforeAll(async () => {
-        await require('../util/setup')();
         models = require('../../models').sequelize.models;
+        await models.user.destroy({ where: { } });
     });
     
 
@@ -13,7 +13,7 @@ describe('User Model', () => {
         sampleUser = {
             email: "test@test.com",
             password: "123456789",
-            confirmation_email_token: "1234567"
+            confirmationEmailToken: "1234567"
         }
     });
 
@@ -62,13 +62,13 @@ describe('User Model', () => {
 
         it('should set default confirmation exp to Date() plus config settings', async () => {
             const user = await models.user.create(sampleUser);
-            expect(user.dataValues.confirmation_email_expiration_date).toBeDefined();
-            expect(user.dataValues.confirmation_email_expiration_date).not.toBeNull();
+            expect(user.dataValues.confirmationEmailExpirationDate).toBeDefined();
+            expect(user.dataValues.confirmationEmailExpirationDate).not.toBeNull();
         });
 
         it('should set email confirmation to false by default', async () => {
             const user = await models.user.create(sampleUser);
-            expect(user.dataValues.email_confirmed).toBe(false);
+            expect(user.dataValues.emailConfirmed).toBe(false);
         });
     });
 
