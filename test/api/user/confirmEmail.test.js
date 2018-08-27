@@ -29,9 +29,33 @@ describe('GET users/confirmation', () => {
         expect(user.emailConfirmed).toBe(true);
         done();
     });
+
+    it('Should throw exception is token is expired', async (done) => {
+        EmailService.sendConfirmationEmail = jest.fn(() => null);
+        await request(app)
+                .post('/graphql')
+                .set('Content-Type', 'application/graphql')
+                .send(`mutation { createUser(email: "test23@test.com", password: "test12345678") { id } }`)
+                .expect(200);
+                
+        /* Set token to expire now */
+        let pastDateTime = new Date();
+        pastDateTime.setMonth(pastDateTime.getMonth() - 2);
+        await UserService.updateUser({ confirmationEmailExpirationDate: pastDateTime }, { email: "test23@test.com" });             
+        const { confirmationEmailToken } = await UserService.getUserByEmail('test23@test.com'); 
+        await request(app)
+                .get(`/users/confirmation?confirmation_token=${confirmationEmailToken}`)
+                .set('Content-Type', 'application/graphql')
+                .expect(200);
+        const user = await UserService.getUserByEmail('test@test.com');
+        expect(user.emailConfirmed).toBe(true);
+        done();
+    });
 });
 
-/* Expired Token */
+
+
+/* Update tests to not use mocks */
 
 afterAll(async () => {
     server.close();

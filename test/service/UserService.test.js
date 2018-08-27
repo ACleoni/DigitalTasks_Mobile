@@ -126,7 +126,10 @@ describe('UserService', () => {
         });
     });
 
-    /* updateEmailConfirmationToken */
+    describe('confirmEmailAddress', () => {
+
+    });
+
 
     /* confirmEmailAddress */
 
