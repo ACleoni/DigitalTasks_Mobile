@@ -2,7 +2,7 @@ const { username, password, database, host } = require('../../config/config').da
 const { Client } = require('pg');
 /* Set env to 'test' prior to syncing schema */
 const models = require('../../models');
-console.log(process.env.NODE_ENV);
+
 (() => {
     return new Promise((resolve, reject) => {
         /* Attempt to connect to test database */

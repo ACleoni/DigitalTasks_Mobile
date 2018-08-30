@@ -1,7 +1,6 @@
-const apiToken = process.env.SENDGRID_TOKEN || require('../config/secretKey').emailKey;
+const { mailTrapMailer, sgMail } = require('../utils/emailConfig');
 const url = require('../config/config').base.url;
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(apiToken);
+const LOGGER = require('../utils/logger');
 
 class EmailService {
 
@@ -12,7 +11,20 @@ class EmailService {
             subject: 'DigitalTasks: Confirm your email address.',
             html: `Click <a href="${url + '/users/confirmation' + '?confirmation_token=' + token}">here</a> to confirm your email address`,
         };
-        sgMail.send(msg);
+
+        if (process.env.NODE_ENV === 'development') {
+            LOGGER.info('Sending confirmation email to mailtrap inbox.');
+            return mailTrapMailer.sendMail(msg, (err, info) => {
+                if (error) {
+                    LOGGER.error('The following error occurred while sending a confirmation to mailtrap: ', error);
+                    return;
+                }
+                LOGGER.info('Message sent: %s', info.messageId);
+            });
+        } else {
+            LOGGER.info(`Sending confirmation email to ${email}.`);
+            await sgMail.send(msg);
+        }
     }
 }
 

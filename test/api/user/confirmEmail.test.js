@@ -1,19 +1,19 @@
 const request = require('supertest');
 const EmailService = require('../../../service/EmailService');
-const sequelize = require('../../../models').sequelize;
+// const sequelize = require('../../../models').sequelize;
 const UserService = require('../../../service/UserService');
 const app = require('../../../app');
 let server;
 jest.mock('../../../service/EmailService');
 /* Create test database if necessary */
 beforeAll(async () => {
-    server = await app.listen(process.env.PORT_API_TEST || 3001);
+    // server = await app.listen(process.env.PORT_API_TEST || 3001);
 });
 
 describe('GET users/confirmation', () => {
     it('Should confirm users email address', async (done) => {
         /* Create new user */
-        EmailService.sendConfirmationEmail = jest.fn(() => null);
+        // EmailService.sendConfirmationEmail = jest.fn(() => null);
         await request(app)
                 .post('/graphql')
                 .set('Content-Type', 'application/graphql')
@@ -31,7 +31,7 @@ describe('GET users/confirmation', () => {
     });
 
     it('Should throw exception is token is expired', async (done) => {
-        EmailService.sendConfirmationEmail = jest.fn(() => null);
+        // EmailService.sendConfirmationEmail = jest.fn(() => null);
         await request(app)
                 .post('/graphql')
                 .set('Content-Type', 'application/graphql')
@@ -53,11 +53,9 @@ describe('GET users/confirmation', () => {
     });
 });
 
-
-
 /* Update tests to not use mocks */
 
 afterAll(async () => {
-    server.close();
-    sequelize.close();
+    // server.close();
+    // sequelize.close();
 });
