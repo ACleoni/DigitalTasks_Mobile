@@ -7,7 +7,7 @@ let server;
 jest.mock('../../../service/EmailService');
 /* Create test database if necessary */
 beforeAll(async () => {
-    // server = await app.listen(process.env.PORT_API_TEST || 3001);
+    server = await app.listen(process.env.PORT_API_TEST || 3001);
 });
 
 describe('GET users/confirmation', () => {
@@ -56,6 +56,6 @@ describe('GET users/confirmation', () => {
 /* Update tests to not use mocks */
 
 afterAll(async () => {
-    // server.close();
-    // sequelize.close();
+    server.close();
+    sequelize.close();
 });
