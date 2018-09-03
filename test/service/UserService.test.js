@@ -127,7 +127,7 @@ describe('UserService', () => {
     });
 
     describe('confirmEmailAddress', () => {
-
+        it('should confirm email address ')
     });
 
 

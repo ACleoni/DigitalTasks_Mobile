@@ -12,11 +12,11 @@ class EmailService {
             html: `Click <a href="${url + '/users/confirmation' + '?confirmation_token=' + token}">here</a> to confirm your email address`,
         };
 
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
             LOGGER.info('Sending confirmation email to mailtrap inbox.');
             return mailTrapMailer.sendMail(msg, (err, info) => {
-                if (error) {
-                    LOGGER.error('The following error occurred while sending a confirmation to mailtrap: ', error);
+                if (err) {
+                    LOGGER.error('The following error occurred while sending a confirmation to mailtrap: ', err);
                     return;
                 }
                 LOGGER.info('Message sent: %s', info.messageId);

@@ -9,7 +9,6 @@ const EmailService = require('./EmailService');
 const setTokenExp = require('../utils/setTokenExp');
 const LOGGER = require('../utils/logger');
 
-
 class UserService {
 
     async getUserById(id) {
