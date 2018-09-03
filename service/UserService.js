@@ -87,8 +87,11 @@ class UserService {
     async confirmEmailAddress(confirmationEmailToken) {
         try {
             const userRecord = await _getUser({ confirmationEmailToken });
+            
             if (userRecord === null) throw "Invalid Token.";
-            if ((new Date()) >= userRecord.confirmationEmailExpirationDate) throw "Token expired."
+            
+            if ((new Date()) >= userRecord.dataValues.confirmationEmailExpirationDate) throw "Token expired."
+            
             const result = await this.updateUser({ emailConfirmed: true }, { confirmationEmailToken });
             return (result[0] > 0);
         } catch (e) {

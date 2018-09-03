@@ -6,6 +6,7 @@ exports.confirmationGet = async (req, res) => {
         const isConfirmed = await UserService.confirmEmailAddress(confirmationEmailToken);
         if (isConfirmed) res.send('<h1>Email Confirmed</h1>')
     } catch (e) {
+        res.send(e);
     }
     /* Find by confirmation token and update account */
     /* UserService.confirmAccount(confirmationToken); */

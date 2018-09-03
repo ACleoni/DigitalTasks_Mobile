@@ -42,11 +42,16 @@ describe('GET users/confirmation', () => {
             pastDateTime.setMonth(pastDateTime.getMonth() - 2);
             await UserService.updateUser({ confirmationEmailExpirationDate: pastDateTime }, { email: "test23@test.com" });             
             const { confirmationEmailToken } = await UserService.getUserByEmail('test23@test.com'); 
-            console.log(`/users/confirmation?confirmation_token=${confirmationEmailToken}`)
-            await request(server)
-                    .get('/users/confirmation?confirmation_token=' + confirmationEmailToken).catch(e => console.log(e))
-                    .expect(200).catch(e => console.log(e));
-        
+
+
+            await new Promise((resolve) => setTimeout(resolve, 30000));
+
+
+            await request('http://localhost:3001')
+                    .get('/users/confirmation?confirmation_token=' + confirmationEmailToken)
+                    .expect(200);
+
+            console.log('/users/confirmation?confirmation_token=' + confirmationEmailToken)        
             const user = await UserService.getUserByEmail('test23@test.com');
             expect(user.emailConfirmed).toBe(true);
         } catch (e) {
