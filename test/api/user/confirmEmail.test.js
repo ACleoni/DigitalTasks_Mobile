@@ -35,28 +35,18 @@ describe('GET users/confirmation', () => {
                 .set('Content-Type', 'application/graphql')
                 .send(`mutation { createUser(email: "test23@test.com", password: "test12345678") { id } }`)
                 .expect(200);
-                
-        /* Set token to expire now */
-        try {
-            let pastDateTime = new Date();
-            pastDateTime.setMonth(pastDateTime.getMonth() - 2);
-            await UserService.updateUser({ confirmationEmailExpirationDate: pastDateTime }, { email: "test23@test.com" });             
-            const { confirmationEmailToken } = await UserService.getUserByEmail('test23@test.com'); 
+    
+        let pastDateTime = new Date();
+        pastDateTime.setMonth(pastDateTime.getMonth() - 2);
+        await UserService.updateUser({ confirmationEmailExpirationDate: pastDateTime }, { email: "test23@test.com" });             
+        const { confirmationEmailToken } = await UserService.getUserByEmail('test23@test.com'); 
 
+        await request(server)
+                .get('/users/confirmation?confirmation_token=' + confirmationEmailToken)
+                .expect(401);
 
-            await new Promise((resolve) => setTimeout(resolve, 30000));
-
-
-            await request('http://localhost:3001')
-                    .get('/users/confirmation?confirmation_token=' + confirmationEmailToken)
-                    .expect(200);
-
-            console.log('/users/confirmation?confirmation_token=' + confirmationEmailToken)        
-            const user = await UserService.getUserByEmail('test23@test.com');
-            expect(user.emailConfirmed).toBe(true);
-        } catch (e) {
-            console.log(e);
-        }
+        const user = await UserService.getUserByEmail('test23@test.com');
+        expect(user.emailConfirmed).toBe(false);
         done();
     });
 });
