@@ -15,3 +15,4 @@ exports.sgMail = (() => {
     sgMail.setApiKey(apiToken);
     return sgMail;
 })();
+
