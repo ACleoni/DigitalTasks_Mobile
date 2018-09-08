@@ -1,6 +1,5 @@
 const express = require('express');
 const favicon = require('serve-favicon');
-const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const graphqlHTTP = require('express-graphql');
@@ -11,7 +10,6 @@ const usersRoute = require('./routes/users');
 const app = express();
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('production'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.text({ type: 'application/graphql' }));
