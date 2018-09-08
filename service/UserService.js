@@ -55,13 +55,18 @@ class UserService {
 
     async createUser(email, password) {
         try {
+            console.log('here1');
             await _validateRequest(email, password);
+            console.log('here1');
             const confirmationEmailToken = await _generateEmailToken();
+            console.log('here1');
             const userRecord = await user.create({ email, password, confirmationEmailToken })
                                          .then(result => result.dataValues);
-
+                                         console.log('here1');
             const token = await _generateUserToken(userRecord.id, userRecord.email);
+            console.log('here1');
             await EmailService.sendConfirmationEmail(userRecord.email, userRecord.confirmationEmailToken);
+            console.log('here1');
             return { id: userRecord.id, email: userRecord.email, token };
         } catch (e) {
             LOGGER.error(`An error occured while creating a user record: ${e}`);
