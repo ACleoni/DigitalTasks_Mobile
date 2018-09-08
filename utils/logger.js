@@ -9,11 +9,11 @@ const logger = winston.createLogger({
     ]
   });
   
-if (process.env.NODE_ENV !== 'a') {
+// if (process.env.NODE_ENV !== 'production') {
 logger.add(new winston.transports.Console({
     format: winston.format.simple()
 }));
-}
+// }
 /* Disable logging when running unit tests */
 if (process.env.NODE_ENV === 'test') {
     logger.silent = true;
