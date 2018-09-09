@@ -1,18 +1,18 @@
 const UserService = require('../../service/UserService');
 const { UserType } = require('../types');
-const {
-    GraphQLString
-} = require('graphql');
 const LOGGER = require('../../utils/logger');
 
 module.exports = {
     type: UserType,
-    args: { email: { type: GraphQLString }, password: { type: GraphQLString } },
-    resolve: async(obj, args, { res }) => {
+    resolve: async(obj, args, { req, res }) => {
         try {
-            const userInfo = await UserService.createUser(email, password);
+            if (!user) {
+                LOGGER.error("Unauthorized Request");
+                throw Error("Unauthorized request.");
+            }
+            const userInfo = await UserService.deleteUserById(req.user.id);
             res.clearCookie("token");
-            return { email: userInfo.email, id: userInfo.id };
+            return { email: userInfo.email };
         } catch (e) {
             LOGGER.error("Error occurred in deleteUser resolver", e);
             throw e;

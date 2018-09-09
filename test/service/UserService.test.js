@@ -164,4 +164,10 @@ describe('UserService', () => {
             } 
         });
     });
+
+    describe('deleteUser', () => {
+        it('should delete user record', () => {
+
+        });
+    });
 });

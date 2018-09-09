@@ -69,7 +69,14 @@ class UserService {
     }
 
     async deleteUserById(id) {
-        /* Delete account by id */
+        try {
+            const userRecord = await user.findById(id);
+            if (userRecord === null) throw "User does not exist.";
+            await userRecord.destroy();
+        } catch (e) {
+            LOGGER.error(`An error occured while deleting user record: ${e}`);
+            throw errorFormatter(e);
+        }
     }
 
     async updateEmailConfirmationToken(email) {
