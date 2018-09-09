@@ -72,7 +72,7 @@ class UserService {
         try {
             const userRecord = await user.findById(id);
             if (userRecord === null) throw "User does not exist.";
-            await userRecord.destroy();
+            await user.destroy({ where: { id: userRecord.dataValues.id } });
         } catch (e) {
             LOGGER.error(`An error occured while deleting user record: ${e}`);
             throw errorFormatter(e);
@@ -96,6 +96,8 @@ class UserService {
             const userRecord = await _getUser({ confirmationEmailToken });
             
             if (userRecord === null) throw "Invalid Token.";
+
+            if (userRecord.dataValues.emailConfirmed) return true;
             
             if ((new Date()) >= userRecord.dataValues.confirmationEmailExpirationDate) throw "Token expired."
             

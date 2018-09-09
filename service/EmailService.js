@@ -19,7 +19,7 @@ class EmailService {
                     LOGGER.error('The following error occurred while sending a confirmation to mailtrap: ', err);
                     return;
                 }
-                LOGGER.info('Message sent: %s', info.messageId);
+                LOGGER.info(`Message sent: ${info.messageId}`);
             });
         } else {
             LOGGER.info(`Sending confirmation email to ${email}.`);

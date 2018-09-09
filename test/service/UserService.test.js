@@ -163,11 +163,42 @@ describe('UserService', () => {
                 expect(e).toContain('Invalid Token');
             } 
         });
+
+        it('should not call updateUser if email address is already confirmed', async () => {
+            queryResult.dataValues.emailConfirmed = true;
+            user.findOne = jest.fn().mockResolvedValue(queryResult);
+            await UserService.confirmEmailAddress(queryResult.dataValues.confirmationEmailToken);
+            expect(UserService.updateUser).not.toBeCalled();
+        });
     });
 
     describe('deleteUser', () => {
-        it('should delete user record', () => {
+        it('should delete user record', async () => {
+            user.findById = jest.fn().mockResolvedValue(queryResult);
+            user.destroy = jest.fn().mockResolvedValue(null);
+            await UserService.deleteUserById(queryResult.dataValues.id);
+            expect(user.destroy).toBeCalledWith({ where: { id: queryResult.dataValues.id } });
+        });
 
+        it('should throw exception if invalid user id', async () => {
+            try {
+                user.findById = jest.fn().mockResolvedValue(null);
+                await UserService.deleteUserById(queryResult.dataValues.id);
+                fail(Error('Should throw user does not exist exception.'));
+            } catch (e) {
+                expect(e).toContain('User does not exist.');
+            }
         });
     });
 });
+
+// async deleteUserById(id) {
+//     try {
+//         const userRecord = await user.findById(id);
+//         if (userRecord === null) throw "User does not exist.";
+//         await userRecord.destroy();
+//     } catch (e) {
+//         LOGGER.error(`An error occured while deleting user record: ${e}`);
+//         throw errorFormatter(e);
+//     }
+// }

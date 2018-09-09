@@ -57,4 +57,5 @@ afterAll(async () => {
                 .patch(`/api/v1/inboxes/${inboxId}/clean`)
                 .set('Api-Token', token)
                 .send();
+    await sequelize.close();            
 });

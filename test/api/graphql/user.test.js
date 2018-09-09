@@ -1,6 +1,7 @@
 const request = require('supertest');
 const EmailService = require('../../../service/EmailService');
 const sequelize = require('../../../models').sequelize;
+const { inboxId, token } = require('../../../config/secretKey').mailtrap;
 const app = require('../../../app');
 jest.mock('../../../service/EmailService');
 
@@ -91,8 +92,80 @@ describe('User', () => {
                     done();
                 });
             });
-    });
-});
+          
+        it('Should not return JWT when using invalid password', (done) => {
+            request(app)
+                .post('/graphql')
+                .set('Content-Type', 'application/graphql')
+                .send(`query { userByEmailPassword(email: "test@test.com", password: "INVALIDPASSWORD") { id } }`)
+                .expect(200)
+                .end((err, res) => {
+                    expect(res.body.errors[0].message).toBe('Invalid password.');
+                    expect(res.headers['set-cookie']).toBeUndefined();
+                    done();
+                });
+            });
+        });
 
+    describe('Delete User', () => {
+        it('Should delete user if valid id', async (done) => {
+            let token;
+
+            request(app)
+                .post('/graphql')
+                .set('Content-Type', 'application/graphql')
+                .send(`mutation { createUser(email: "testzzzzzz@test.com", password: "test12345678") { id } }`)
+                .expect(200)
+                .end(((err, res) => {
+                    if (err) fail(err);
+                    token = res.headers['set-cookie'][0];
+                    request(app)
+                        .post('/graphql')
+                        .set('Content-Type', 'application/graphql')
+                        .set('Cookie', [ token ] )
+                        .send(`mutation { deleteUser }`)
+                        .expect(200)
+                        .end(((err, res) => {
+                            if (err) fail(err);
+                            expect(res.body.data.deleteUser).toBe(true);
+                            done();
+                        }));
+                    }));
+                });
+            });
+
+        it('Should return unauthorized request if using invalid id', async (done) => {
+            let token;
+
+            request(app)
+                .post('/graphql')
+                .set('Content-Type', 'application/graphql')
+                .send(`mutation { createUser(email: "test222zzzzzz@test.com", password: "test12345678") { id } }`)
+                .expect(200)
+                .end(((err, res) => {
+                    if (err) fail(err);
+                    token = res.headers['set-cookie'][0];
+                    request(app)
+                        .post('/graphql')
+                        .set('Content-Type', 'application/graphql')
+                        .send(`mutation { deleteUser }`)
+                        .expect(200)
+                        .end(((err, res) => {
+                            if (err) fail(err);
+                            expect(res.body.errors[0].message).toBe('Unauthorized request.');
+                            done();
+                        }));
+                    }));
+                });
+        });
+
+afterAll(async () => {
+    /* Clear inbox */
+    await request(`https://mailtrap.io`)
+                .patch(`/api/v1/inboxes/${inboxId}/clean`)
+                .set('Api-Token', token)
+                .send();
+    await sequelize.close();            
+});  
 
        
