@@ -48,7 +48,7 @@ class UserService {
             }
             throw "Invalid password."
         } catch (e) {
-            LOGGER.error(`An error occured while calling getUserByEmailAndPassword: ${e}`)
+            LOGGER.error(`An error occured while calling getUserByEmailAndPassword: ${e}`);
             throw errorFormatter(e);
         }
     }
@@ -94,15 +94,16 @@ class UserService {
     async confirmEmailAddress(confirmationEmailToken) {
         try {
             const userRecord = await _getUser({ confirmationEmailToken });
-            
+
             if (userRecord === null) throw "Invalid Token.";
 
-            if (userRecord.dataValues.emailConfirmed) return true;
-            
+            if (userRecord.dataValues.emailConfirmed) return { isConfirmed: true, email: userRecord.dataValues.email };
+
             if ((new Date()) >= userRecord.dataValues.confirmationEmailExpirationDate) throw "Token expired."
-            
+
             const result = await this.updateUser({ emailConfirmed: true }, { confirmationEmailToken });
-            return (result[0] > 0);
+
+            return { isConfirmed: (result[0] > 0), email: userRecord.dataValues.email };
         } catch (e) {
             LOGGER.error(`An error occurred during confirmEmailAddress(): ${e}`);
             throw errorFormatter(e);
@@ -118,6 +119,12 @@ class UserService {
             LOGGER.error(`An error occurred during updateUser(): ${e}`);
             throw errorFormatter(e);
         }
+    }
+
+    async resendConfirmationEmail(email) {
+        const confirmationEmailToken = await _generateEmailToken();
+        await this.updateUser( { confirmationEmailToken } , { email });
+        await EmailService.sendConfirmationEmail(email, confirmationEmailToken);
     }
 }
 
@@ -159,4 +166,4 @@ const _getUser = async (searchCriteria) => {
      return await user.findOne({ where: searchCriteria });
 }
 
-module.exports = (new UserService());
+module.exports = new UserService();

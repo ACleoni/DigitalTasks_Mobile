@@ -26,6 +26,12 @@ class EmailService {
             await sgMail.send(msg);
         }
     }
+
+    async resendConfirmationEmail(email) {
+        const confirmationEmailToken = await _generateEmailToken();
+        await UserService.updateUser( { confirmationEmailToken } , { email });
+        await this.sendConfirmationEmail(email, confirmationEmailToken);
+    }
 }
 
 module.exports = (new EmailService());

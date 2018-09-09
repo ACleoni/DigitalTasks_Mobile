@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
+    <link rel="stylesheet" href="/stylesheets/main.css">
+    <title>Title</title>
+</head>
+<body>
+    <div class="logo">
+        <img src="/images/logo.png" alt="logo" height="100px" width="112px">
+    </div>
+    {{!-- {{#if isResend}} --}}
+    {{!-- An email has been sent. Please check your {{email}} inbox for a confirmation email. --}}
+    {{!-- {{#elseif tokenExpired}} --}}
+    <h1>This link has expired. Click <a href="/users/confirmation/resend?email={{email}}">here</a> to request a new link.</h1>
+    {{!-- {{else}}
+    <h1>All set! {{email}} is confirmed.</h1>
+    {{/if}} --}}
+</body>
+</html>

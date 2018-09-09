@@ -1,0 +1,25 @@
+body {
+    font-family: 'Proxima Nova', sans-serif;
+}
+
+.logo {
+    display: flex;
+    justify-content: center;
+    height: 100px;
+    width: 112px;
+    margin: 50px auto 20px auto;
+}
+
+h1 {
+    font-size: 20px;
+    line-height: 1.4;
+    color: #4D5055;
+    word-wrap: break-word;
+    word-break: break-word;
+    text-align: center;
+}
+
+a {
+    color: #66c7ff;
+    text-decoration: none;
+}
