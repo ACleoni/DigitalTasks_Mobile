@@ -8,7 +8,6 @@ describe('User Model', () => {
         await models.user.destroy({ where: { } });
     });
     
-
     beforeEach(() => {
         sampleUser = {
             email: "test@test.com",

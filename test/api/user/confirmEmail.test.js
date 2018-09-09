@@ -3,25 +3,23 @@ const sequelize = require('../../../models').sequelize;
 const UserService = require('../../../service/UserService');
 const { inboxId, token } = require('../../../config/secretKey').mailtrap;
 const app = require('../../../app');
-let server;
 
-/* Create test database if necessary */
-beforeAll(async () => {
-    server = await app.listen(process.env.PORT_API_TEST || 3001);
+beforeAll(() => {
+    if (app.settings.env !== 'test') throw 'Application not runnning in test mode'
 });
 
 describe('GET users/confirmation', () => {
     it('Should confirm users email address', async (done) => {
         let userEmail = `test123@test123.com`;
         /* Create new user */
-        await request(server)
+        await request(app)
                 .post('/graphql')
                 .set('Content-Type', 'application/graphql')
                 .send(`mutation { createUser(email: "${userEmail}", password: "test12345678") { id } }`)
                 .expect(200);
 
         const { confirmationEmailToken } = await UserService.getUserByEmail(userEmail); 
-        await request(server)
+        await request(app)
                 .get(`/users/confirmation?confirmation_token=${confirmationEmailToken}`)
                 .set('Content-Type', 'application/graphql')
                 .expect(200);
@@ -32,7 +30,7 @@ describe('GET users/confirmation', () => {
     });
 
     it('Should throw exception is token is expired', async (done) => {
-        await request(server)
+        await request(app)
                 .post('/graphql')
                 .set('Content-Type', 'application/graphql')
                 .send(`mutation { createUser(email: "test23@test.com", password: "test12345678") { id } }`)
@@ -43,7 +41,7 @@ describe('GET users/confirmation', () => {
         await UserService.updateUser({ confirmationEmailExpirationDate: pastDateTime }, { email: "test23@test.com" });             
         const { confirmationEmailToken } = await UserService.getUserByEmail('test23@test.com'); 
 
-        await request(server)
+        await request(app)
                 .get('/users/confirmation?confirmation_token=' + confirmationEmailToken)
                 .expect(401);
 
@@ -59,6 +57,4 @@ afterAll(async () => {
                 .patch(`/api/v1/inboxes/${inboxId}/clean`)
                 .set('Api-Token', token)
                 .send();
-    await server.close();
-    await sequelize.close();
 });

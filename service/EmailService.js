@@ -5,7 +5,6 @@ const LOGGER = require('../utils/logger');
 class EmailService {
 
     async sendConfirmationEmail(email, token) {
-        console.log('here1')
         const msg = {
             to: email,
             from: 'dcdigitaltasks@gmail.com',

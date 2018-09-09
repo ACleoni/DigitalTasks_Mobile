@@ -97,7 +97,7 @@ describe('UserService', () => {
             queryResult.dataValues.password = "HASHEDPASSWORD";
             UserService.getUserByEmail = jest.fn().mockResolvedValue(queryResult.dataValues);
             try {
-                const result = await UserService.getUserTokenByEmailAndPassword("test@test.com", "INVALIDPW");
+                await UserService.getUserTokenByEmailAndPassword("test@test.com", "INVALIDPW");
             } catch (e) {
                 expect(e).toEqual('Invalid password.');
                 expect(bcrypt.compare).toBeCalledWith("INVALIDPW", "HASHEDPASSWORD");
@@ -109,7 +109,7 @@ describe('UserService', () => {
         it('should update confirmation email token expiration date', async () => {
             user.update = jest.fn().mockResolvedValue([1]);
             try {
-                const result = await UserService.updateConfirmationToken("test@test.com");
+                const result = await UserService.updateEmailConfirmationToken("test@test.com");
                 expect(result).toEqual(1);
             } catch (e) {
                 fail(e);
@@ -119,7 +119,7 @@ describe('UserService', () => {
         it('should throw exception when email does not exist in database', async () => {
             user.update = jest.fn().mockResolvedValue([0]);
             try {
-                const result = await UserService.updateConfirmationToken("INVALIDEMAIL");
+                await UserService.updateEmailConfirmationToken("INVALIDEMAIL");
             } catch (e) {
                 expect(e).toEqual("Unable to update confirmation token by user email.");
             }
@@ -132,6 +132,4 @@ describe('UserService', () => {
 
 
     /* confirmEmailAddress */
-
-    /* updateUser */
 });

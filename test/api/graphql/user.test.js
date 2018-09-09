@@ -2,20 +2,15 @@ const request = require('supertest');
 const EmailService = require('../../../service/EmailService');
 const sequelize = require('../../../models').sequelize;
 const app = require('../../../app');
-let server;
 jest.mock('../../../service/EmailService');
-/* Create test database if necessary */
-beforeAll(async () => {
-    server = await app.listen(process.env.PORT_API_TEST || 3001);
+
+beforeAll(() => {
+    if (app.settings.env !== 'test') throw 'Application not runnning in test mode'
 });
 
 describe('User', () => {
-    let userToken;
     describe('Create User', () => {
-        
         it('Should create a user record and return JWT', (done) => {
-            /* Mock sendEmail function */
-            EmailService.sendConfirmationEmail = jest.fn(() => null);
             request(app)
                 .post('/graphql')
                 .set('Content-Type', 'application/graphql')
@@ -26,7 +21,7 @@ describe('User', () => {
                     /* Expect confirmation email to be sent */
                     expect(EmailService.sendConfirmationEmail).toBeCalledWith('test@test.com', expect.anything());
                     /* Expect response to return valid user id */
-                    expect(res.body).toMatchObject({ data: { createUser: { id: 1 } } });
+                    expect(res.body).toMatchObject({ data: { createUser: {  } } });
                     /* Expect response to contain JWT */
                     expect(res.headers['set-cookie'][0]).toMatch(/token=.+/);
                     done();
@@ -83,7 +78,6 @@ describe('User', () => {
     });
 
     describe('User login', () => {
-
         it('Should return valid JWT when user logs in with valid email / password', (done) => {
             request(app)
                 .post('/graphql')
@@ -91,18 +85,13 @@ describe('User', () => {
                 .send(`query { userByEmailPassword(email: "test@test.com", password: "test12345678") { id } }`)
                 .expect(200)
                 .end((err, res) => {
-                    expect(res.body).toMatchObject({ data: { userByEmailPassword: { id: 1 } } });
+                    expect(res.body).toMatchObject({ data: { userByEmailPassword: {  } } });
                     expect(res.headers['set-cookie'][0]).toMatch(/token=.+/);
                     userToken = res.headers['set-cookie'][0];
                     done();
                 });
             });
     });
-});
-
-afterAll(() => {
-    server.close();
-    sequelize.close();
 });
 
 
