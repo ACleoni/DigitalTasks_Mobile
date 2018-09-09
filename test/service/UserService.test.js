@@ -6,7 +6,16 @@ describe('UserService', () => {
     let queryResult;
 
     beforeEach(() => {
-        queryResult = { dataValues: { id: 1, email: "test@test.com", password: "test12345" } };
+        let date = new Date();
+        queryResult = { dataValues: 
+            { 
+                id: 1, 
+                email: "test@test.com", 
+                password: "test12345", 
+                confirmationEmailToken: "123",
+                confirmationEmailExpirationDate: date.setMonth(date.getMonth() + 3)
+            } 
+        };
     });
 
     describe('createUser', () => {
@@ -127,9 +136,32 @@ describe('UserService', () => {
     });
 
     describe('confirmEmailAddress', () => {
-        it('should confirm email address ')
+        it('should confirm email address', async () => {
+            user.findOne = jest.fn().mockResolvedValue(queryResult);
+            UserService.updateUser = jest.fn(() => [[1]]);
+            await UserService.confirmEmailAddress(queryResult.dataValues.confirmationEmailToken);
+            expect(UserService.updateUser).toBeCalledWith({ emailConfirmed: true}, { confirmationEmailToken: queryResult.dataValues.confirmationEmailToken });
+        });
+
+        it('should throw an exception if token is expired', async () => {
+            try {
+                queryResult.dataValues.confirmationEmailExpirationDate = new Date().setFullYear(1999);
+                user.findOne = jest.fn().mockResolvedValue(queryResult);
+                await UserService.confirmEmailAddress(queryResult.dataValues.confirmationEmailToken);
+                fail(Error('Should have thrown expired token exception'));
+            } catch (e) {
+                expect(e).toContain('Token expired');
+            } 
+        });
+
+        it('should throw an exception if invalid token', async () => {
+            try {
+                user.findOne = jest.fn().mockResolvedValue(null);
+                await UserService.confirmEmailAddress(queryResult.dataValues.confirmationEmailToken);
+                fail(Error('Should have thrown invalid token exception'));
+            } catch (e) {
+                expect(e).toContain('Invalid Token');
+            } 
+        });
     });
-
-
-    /* confirmEmailAddress */
 });

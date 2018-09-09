@@ -68,7 +68,8 @@ class UserService {
         }
     }
 
-    async deleteUserById(email) {
+    async deleteUserById(id) {
+        /* Delete account by id */
     }
 
     async updateEmailConfirmationToken(email) {

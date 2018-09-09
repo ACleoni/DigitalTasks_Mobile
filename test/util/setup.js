@@ -1,6 +1,5 @@
 const { username, password, database, host } = require('../../config/config').database.test;
 const { Client } = require('pg');
-/* Set env to 'test' prior to syncing schema */
 const models = require('../../models');
 
 (() => {
